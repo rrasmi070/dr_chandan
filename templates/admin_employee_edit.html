@@ -1,0 +1,56 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Edit Employee | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Edit Employee{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <h2>{{ employee.employee_id or 'N/A' }} - {{ employee.full_name or ((employee.first_name or '') ~ ' ' ~ (employee.last_name or '')) }}</h2>
+        <p class="field-note">Update employee name, contact, and linked doctor details.</p>
+
+        <form class="stack-form top-gap-sm" method="post" action="/admin/employees/{{ employee.id }}/edit?page={{ page }}&search={{ search }}&designation={{ designation }}">
+            <label>
+                <span>First Name</span>
+                <input type="text" name="first_name" value="{{ employee.first_name or '' }}" required>
+            </label>
+            <label>
+                <span>Last Name</span>
+                <input type="text" name="last_name" value="{{ employee.last_name or '' }}" required>
+            </label>
+            <label>
+                <span>Phone</span>
+                <input type="text" name="phone" value="{{ employee.phone or '' }}">
+            </label>
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" value="{{ employee.email or '' }}">
+            </label>
+
+            <h3>Linked Doctor</h3>
+            <label>
+                <span>Doctor Phone</span>
+                <input type="text" name="doctor_phone" value="{{ doctor_phone or '' }}">
+            </label>
+            <label>
+                <span>Doctor Email</span>
+                <input type="email" name="doctor_email" value="{{ doctor_email or '' }}">
+            </label>
+            <label>
+                <span>Doctor Profile Summary</span>
+                <textarea name="doctor_profile_summary" rows="4">{{ doctor_profile_summary or '' }}</textarea>
+            </label>
+            <label>
+                <span>Doctor Testimonial Summary</span>
+                <textarea name="doctor_testimonial_summary" rows="4">{{ doctor_testimonial_summary or '' }}</textarea>
+            </label>
+
+            <button class="button button-primary" type="submit">Save Details</button>
+        </form>
+
+        <div class="top-gap-sm">
+            <a class="button button-secondary" href="/admin/employees?page={{ page }}&search={{ search }}&designation={{ designation }}">Back to Employee List</a>
+        </div>
+    </article>
+</section>
+{% endblock %}

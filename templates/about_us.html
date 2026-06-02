@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | Physiophyte Medicare{% endblock %}
+
+{% block body %}
+<div class="site-shell">
+    <header class="topbar reveal">
+        <a class="brand-wrap" href="/">
+            <img class="brand-logo" src="{{ url_for('static', path='/images/logo1.png') }}" alt="Physiophyte logo" onerror="this.style.display='none'">
+        </a>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <a href="/about-us">About Us</a>
+            <a href="/contact-us">Contact Us</a>
+            <a href="/#services">Services</a>
+            <a href="/#team">Doctors</a>
+            <a href="/#booking">Book</a>
+            <a class="button button-secondary" href="/admin/login">Admin</a>
+        </nav>
+    </header>
+
+    <section class="hero reveal">
+        <div class="hero-copy">
+            <p class="eyebrow">About Us</p>
+            <h1>Home physiotherapy with clinical discipline and human-centered care.</h1>
+            <p class="lede">Physiophyte Medicare provides structured at-home physiotherapy sessions with licensed professionals across multiple cities. We focus on safe recovery plans, continuity of care, and clear progress tracking.</p>
+        </div>
+        <div class="hero-card">
+            <div class="metric-grid">
+                <article>
+                    <strong>{{ doctors|length }}</strong>
+                    <span>Active doctors</span>
+                </article>
+                <article>
+                    <strong>{{ cities|length }}</strong>
+                    <span>Cities covered</span>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits reveal">
+        <div class="section-heading">
+            <p class="eyebrow">What We Value</p>
+            <h2>Professional outcomes with practical home convenience.</h2>
+        </div>
+        <div class="benefit-grid">
+            <article>
+                <h3>Evidence-based treatment</h3>
+                <p>Every session follows assessment, intervention, and progression principles tailored to each condition.</p>
+            </article>
+            <article>
+                <h3>Transparent communication</h3>
+                <p>Patients and family members receive clear guidance on goals, timelines, and home exercise continuity.</p>
+            </article>
+            <article>
+                <h3>Reliable scheduling</h3>
+                <p>Availability is updated through the admin panel so bookings are aligned with real therapist slots.</p>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Appointment Detail | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Appointment Detail{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-panel reveal">
+    <div class="list-card-head">
+        <div>
+            <h2>{{ appointment.patient_name }}</h2>
+            <p class="field-note">{{ appointment.service_name }} | {{ appointment.city }} | {{ appointment.appointment_date }}</p>
+        </div>
+        <a class="button button-secondary" href="{{ list_url }}">Back to list</a>
+    </div>
+
+    <div class="dashboard-grid secondary-grid">
+        <article class="list-card">
+            <h3>Patient Info</h3>
+            <p><strong>Phone:</strong> {{ appointment.phone }}</p>
+            <p><strong>Status:</strong> <span class="status-chip">{{ appointment.status }}</span></p>
+            {% if current_role != 'doctor' %}
+            <p><strong>Payment:</strong> {{ appointment.payment_status if appointment.payment_status else 'Pending' }}</p>
+            {% endif %}
+            {% if appointment.notes %}
+            <p><strong>Notes:</strong> {{ appointment.notes }}</p>
+            {% endif %}
+        </article>
+
+        <article class="list-card">
+            <h3>Clinical Details</h3>
+            {% if appointment.diagnosis_details %}
+            <p><strong>Diagnosis:</strong> {{ appointment.diagnosis_details }}</p>
+            {% endif %}
+            {% if appointment.completion_notes %}
+            <p><strong>Treatment Notes:</strong> {{ appointment.completion_notes }}</p>
+            {% endif %}
+            {% if appointment.follow_up_duration %}
+            <p><strong>Continue:</strong> {{ appointment.follow_up_duration }}</p>
+            {% endif %}
+            {% if not appointment.diagnosis_details and not appointment.completion_notes and not appointment.follow_up_duration %}
+            <p class="field-note">No clinical details updated yet.</p>
+            {% endif %}
+        </article>
+    </div>
+
+    <form class="stack-form top-gap-sm" method="post" action="/admin/appointments/{{ appointment.id }}/update{% if query_suffix %}?{{ query_suffix }}{% endif %}">
+        {% if can_assign_doctor %}
+        <label>
+            <span class="field-note">Assign doctor (required on Confirmed/In Progress/Completed)</span>
+            <select name="doctor_id">
+                <option value="">Select doctor</option>
+                {% for doctor in doctors %}
+                <option value="{{ doctor.id }}" {% if appointment.doctor_id == doctor.id %}selected{% endif %}>{{ doctor.name }} ({{ doctor.employee_id if doctor.employee_id else 'Pending' }})</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <details class="list-card compact">
+            <summary><strong>Check Doctor Timing Slots</strong></summary>
+            <div class="table-stack compact-stack top-gap-sm">
+                {% for doctor in doctors %}
+                <div class="list-card compact">
+                    <strong>{{ doctor.name }}</strong>
+                    {% if doctor.availability_slots %}
+                    <ul class="slot-list top-gap-sm">
+                        {% for slot in doctor.availability_slots %}
+                        <li>{{ slot.day_label }}: {{ slot.time_range }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="field-note top-gap-sm">No slots configured.</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </details>
+        {% endif %}
+
+        <label>
+            <span class="field-note">Status</span>
+            <select name="status_value">
+                {% if current_role == 'doctor' %}
+                {% for status_label in ['In Progress', 'Completed'] %}
+                <option value="{{ status_label }}" {% if appointment.status == status_label %}selected{% endif %}>{{ status_label }}</option>
+                {% endfor %}
+                {% else %}
+                {% for status_label in ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'] %}
+                <option value="{{ status_label }}" {% if appointment.status == status_label %}selected{% endif %}>{{ status_label }}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+        </label>
+
+        {% if can_edit_clinical %}
+        <textarea name="diagnosis_details" rows="3" placeholder="Diagnosis details (required on Completed)">{{ appointment.diagnosis_details }}</textarea>
+        <textarea name="completion_notes" rows="3" placeholder="Treatment notes / progress summary">{{ appointment.completion_notes }}</textarea>
+        <input type="text" name="follow_up_duration" value="{{ appointment.follow_up_duration }}" placeholder="Continue for 2 weeks / 6 sessions">
+        {% else %}
+        <input type="hidden" name="diagnosis_details" value="{{ appointment.diagnosis_details }}">
+        <input type="hidden" name="completion_notes" value="{{ appointment.completion_notes }}">
+        <input type="hidden" name="follow_up_duration" value="{{ appointment.follow_up_duration }}">
+        {% endif %}
+
+        {% if can_manage_payment %}
+        <label>
+            <span class="field-note">Payment status</span>
+            <select name="payment_status">
+                {% for payment_label in ['Pending', 'Confirmed', 'Cancelled'] %}
+                <option value="{{ payment_label }}" {% if (appointment.payment_status or 'Pending') == payment_label %}selected{% endif %}>{{ payment_label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <textarea name="payment_details" rows="3" placeholder="Payment details / transaction note">{{ appointment.payment_details }}</textarea>
+        {% else %}
+        <input type="hidden" name="payment_status" value="{{ appointment.payment_status or 'Pending' }}">
+        <input type="hidden" name="payment_details" value="{{ appointment.payment_details }}">
+        {% endif %}
+
+        <button class="button button-primary" type="submit">Save update</button>
+    </form>
+
+    <section class="top-gap-sm">
+        <h3>Historical Summary</h3>
+        <div class="table-stack compact-stack">
+            {% for entry in appointment_history %}
+            <div class="list-card compact">
+                <div class="doctor-row-head">
+                    <strong>{{ entry.action.replace('_', ' ')|title }}</strong>
+                    <span class="field-note">{{ entry.created_at }}</span>
+                </div>
+                <p class="field-note">By: {{ entry.actor_username }} ({{ entry.actor_role|title }})</p>
+                {% if entry.changes %}
+                <ul class="slot-list">
+                    {% for key, value in entry.changes.items() %}
+                    <li>{{ key.replace('_', ' ')|title }}: {{ value }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="empty-state">No history yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}

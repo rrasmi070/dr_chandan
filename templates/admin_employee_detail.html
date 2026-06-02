@@ -1,0 +1,66 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Employee Details | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Employee Details{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <div class="list-card-head">
+            <h2>{{ employee.full_name or ((employee.first_name or '') ~ ' ' ~ (employee.last_name or '')) }}</h2>
+            <span class="status-chip {% if employee.is_active %}active-chip{% else %}inactive-chip{% endif %}">
+                {{ 'Active' if employee.is_active else 'Inactive' }}
+            </span>
+        </div>
+
+        <div class="table-stack top-gap-sm">
+            <div class="list-card compact">
+                <strong>Core Details</strong>
+                <span>Employee ID: {{ employee.employee_id or 'N/A' }}</span>
+                <span>Role: {{ (employee.user_role or (employee.user.role if employee.user else ''))|title or 'N/A' }}</span>
+                <span>Designation: {{ employee.designation or 'N/A' }}</span>
+                <span>DOB: {{ employee.dob or 'N/A' }}</span>
+                <span>Joining Date: {{ employee.joining_date or 'N/A' }}</span>
+            </div>
+
+            <div class="list-card compact">
+                <strong>Contact</strong>
+                <span>Phone: {{ employee.phone or 'N/A' }}</span>
+                <span>Email: {{ employee.email or 'N/A' }}</span>
+                <span>Address: {{ employee.address or 'N/A' }}</span>
+            </div>
+
+            <div class="list-card compact">
+                <strong>Linked Account</strong>
+                <span>Username: {{ employee.username or (employee.user.username if employee.user else 'N/A') }}</span>
+                <span>Account Role: {{ (employee.user.role if employee.user else 'N/A')|title }}</span>
+                <span>Account Status: {{ 'Active' if (employee.user and employee.user.active) else 'Inactive' }}</span>
+                <span>Linked Doctor: {{ employee.linked_doctor.name if employee.linked_doctor else 'N/A' }}</span>
+            </div>
+
+            <div class="list-card compact">
+                <strong>Doctor Contact & Summary</strong>
+                <span>Doctor Phone: {{ doctor_phone or 'N/A' }}</span>
+                <span>Doctor Email: {{ doctor_email or 'N/A' }}</span>
+                <span>Doctor Profile Summary: {{ employee.linked_doctor.bio if employee.linked_doctor and employee.linked_doctor.bio else 'N/A' }}</span>
+                <span>Doctor Testimonial Summary: {{ employee.linked_doctor.testimonial_summary if employee.linked_doctor and employee.linked_doctor.testimonial_summary else 'N/A' }}</span>
+            </div>
+
+            <div class="list-card compact">
+                <strong>Documents</strong>
+                {% if employee.documents %}
+                    {% for doc in employee.documents %}
+                    <a class="button button-secondary" href="{{ doc }}" target="_blank" rel="noopener">Open Document {{ loop.index }}</a>
+                    {% endfor %}
+                {% else %}
+                <span>No documents uploaded.</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="top-gap-sm">
+            <a class="button button-secondary" href="{{ employees_list_url }}">Back to Employee List</a>
+        </div>
+    </article>
+</section>
+{% endblock %}

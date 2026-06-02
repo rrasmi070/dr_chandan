@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login | Physiophyte Medicare{% endblock %}
+
+{% block body %}
+<main class="admin-auth-shell">
+    <section class="admin-auth-card reveal">
+        <p class="eyebrow">Admin Panel</p>
+        <h1>Sign in to manage doctors, bookings, and reviews.</h1>
+        {% if error %}
+        <div class="notice error">{{ error }}</div>
+        {% endif %}
+        <form class="stack-form" method="post" action="/admin/login">
+            <label>
+                <span>Login As</span>
+                <select name="role" required>
+                    <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="doctor" {% if selected_role == 'doctor' %}selected{% endif %}>Doctor</option>
+                    <option value="reception" {% if selected_role == 'reception' %}selected{% endif %}>Reception</option>
+                    <option value="staf" {% if selected_role == 'staf' %}selected{% endif %}>Staf</option>
+                </select>
+            </label>
+            <label>
+                <span>Username or Employee ID</span>
+                <input type="text" name="identifier" placeholder="username or EMP-00001" required>
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" required>
+            </label>
+            <button class="button button-primary" type="submit">Login</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

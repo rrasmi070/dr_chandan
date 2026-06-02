@@ -1,0 +1,92 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Employee List | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Employee List{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-panel reveal">
+    <div class="toolbar-row">
+        <form class="inline-form toolbar-form" method="get" action="/admin/employees">
+            <label>
+                <span class="field-note">Search</span>
+                <input type="text" name="search" value="{{ employee_filters.search }}" placeholder="Phone, name, or designation">
+            </label>
+            <label>
+                <span class="field-note">Designation</span>
+                <select name="designation">
+                    <option value="">All</option>
+                    {% for designation in designation_options %}
+                    <option value="{{ designation }}" {% if employee_filters.designation == designation %}selected{% endif %}>{{ designation }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="button button-secondary" type="submit">Apply filter</button>
+        </form>
+        <a class="button button-primary" href="/admin/employees/export?search={{ employee_filters.search }}&designation={{ employee_filters.designation }}">Export Excel</a>
+    </div>
+
+    <div class="table-scroll">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Designation</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Joining Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees_page["items"] %}
+                <tr>
+                    <td>{{ employee.employee_id or 'N/A' }}</td>
+                    <td>
+                        <strong>{{ employee.full_name or ((employee.first_name or '') ~ ' ' ~ (employee.last_name or '')) }}</strong>
+                        <div class="field-note">Username: {{ employee.username or (employee.user.username if employee.user else 'N/A') }}</div>
+                    </td>
+                    <td>{{ (employee.user_role or (employee.user.role if employee.user else ''))|title or 'N/A' }}</td>
+                    <td>{{ employee.designation or 'N/A' }}</td>
+                    <td>
+                        <div>{{ employee.phone or 'N/A' }}</div>
+                        <div class="field-note">{{ employee.email or 'N/A' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-chip {% if employee.is_active %}active-chip{% else %}inactive-chip{% endif %}">
+                            {{ 'Active' if employee.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>{{ employee.joining_date or 'N/A' }}</td>
+                    <td>
+                        <div class="inline-form">
+                            <a class="button button-secondary" href="/admin/employees/{{ employee.id }}?page={{ employees_page.page }}">Details</a>
+                            <a class="button button-secondary" href="/admin/employees/{{ employee.id }}/edit?page={{ employees_page.page }}&search={{ employee_filters.search }}&designation={{ employee_filters.designation }}">Edit</a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">
+                        <p class="empty-state">No employees found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-row">
+        <span class="field-note">Page {{ employees_page.page }} of {{ employees_page.total_pages }} | {{ employees_page.total_items }} total</span>
+        <div class="inline-form">
+            {% if employees_page.has_prev %}
+            <a class="button button-secondary" href="{{ employees_page_links.prev }}">Previous</a>
+            {% endif %}
+            {% if employees_page.has_next %}
+            <a class="button button-secondary" href="{{ employees_page_links.next }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

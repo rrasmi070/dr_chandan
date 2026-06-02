@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us | Physiophyte Medicare{% endblock %}
+
+{% block body %}
+<div class="site-shell">
+    <header class="topbar reveal">
+        <a class="brand-wrap" href="/">
+            <img class="brand-logo" src="{{ url_for('static', path='/images/logo1.png') }}" alt="Physiophyte logo" onerror="this.style.display='none'">
+        </a>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <a href="/about-us">About Us</a>
+            <a href="/contact-us">Contact Us</a>
+            <a href="/#services">Services</a>
+            <a href="/#team">Doctors</a>
+            <a class="button button-primary" href="/#booking">Book Appointment</a>
+        </nav>
+    </header>
+
+    <main class="contact-page">
+        <section class="hero contact-hero reveal">
+            <div class="hero-copy contact-hero-copy">
+                <p class="eyebrow">Contact Us</p>
+                <h1>Connect with Physiophyte Medicare on phone and social media.</h1>
+                <p class="lede">For appointments, support, and updates, reach us through the channels below. We typically respond quickly during business hours.</p>
+            </div>
+            <div class="hero-card contact-hero-card">
+                <div class="metric-grid">
+                    <article>
+                        <strong>+91 99999 99999</strong>
+                        <span>Call / WhatsApp</span>
+                    </article>
+                    <article>
+                        <strong>support@physiophyte.in</strong>
+                        <span>Email support</span>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="reveal contact-social-section">
+            <div class="section-heading">
+                <p class="eyebrow">Social Media</p>
+                <h2>Follow and message us on your preferred platform.</h2>
+            </div>
+
+            <div class="contact-grid contact-social-grid">
+                <a class="contact-card social-card social-instagram" href="https://www.instagram.com/" target="_blank" rel="noopener">
+                    <div class="contact-card-head">
+                        <span class="social-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <circle cx="17.2" cy="6.8" r="1.2"></circle>
+                            </svg>
+                        </span>
+                        <h3>Instagram</h3>
+                    </div>
+                    <p>Follow recovery tips and therapy updates.</p>
+                </a>
+                <a class="contact-card social-card social-facebook" href="https://www.facebook.com/" target="_blank" rel="noopener">
+                    <div class="contact-card-head">
+                        <span class="social-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                <path d="M14 8h3V4h-3c-3 0-5 2-5 5v3H6v4h3v4h4v-4h3.1l.9-4H13V9c0-.7.3-1 1-1z"></path>
+                            </svg>
+                        </span>
+                        <h3>Facebook</h3>
+                    </div>
+                    <p>Community stories, service announcements, and support.</p>
+                </a>
+                <a class="contact-card social-card social-linkedin" href="https://www.linkedin.com/" target="_blank" rel="noopener">
+                    <div class="contact-card-head">
+                        <span class="social-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                <circle cx="6" cy="6" r="2"></circle>
+                                <rect x="4" y="10" width="4" height="10" rx="1"></rect>
+                                <path d="M11 10h4v1.4c.6-.9 1.7-1.6 3.5-1.6 3 0 4.5 2 4.5 5.3V20h-4v-4.2c0-1.5-.5-2.4-1.8-2.4-1 0-1.6.6-1.9 1.3-.1.2-.1.6-.1.9V20h-4z"></path>
+                            </svg>
+                        </span>
+                        <h3>LinkedIn</h3>
+                    </div>
+                    <p>Company updates, hiring, and professional highlights.</p>
+                </a>
+                <a class="contact-card social-card social-youtube" href="https://www.youtube.com/" target="_blank" rel="noopener">
+                    <div class="contact-card-head">
+                        <span class="social-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" role="img" focusable="false">
+                                <rect x="2.5" y="6" width="19" height="12" rx="3"></rect>
+                                <path d="M10 9.3l5 2.7-5 2.7z"></path>
+                            </svg>
+                        </span>
+                        <h3>YouTube</h3>
+                    </div>
+                    <p>Patient video reviews and rehabilitation guidance.</p>
+                </a>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Admin Dashboard | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Operations Console{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-grid reveal">
+    <article class="dashboard-panel full-width">
+        <div class="list-card-head">
+            <div>
+                <h2>Doctor List</h2>
+                <p class="field-note">Doctor profiles are created from the Create User module. This list is for updates and status.</p>
+            </div>
+            <div class="inline-form admin-shortcuts">
+                <a class="button button-secondary" href="/admin/appointments">Appointments</a>
+                <a class="button button-secondary" href="/admin/reviews">Reviews</a>
+                {% if can_manage_admins %}
+                <a class="button button-secondary" href="/admin/users">Users</a>
+                <a class="button button-secondary" href="/admin/employees">Employees</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-stack compact-stack">
+            {% for doctor in doctors_page["items"] %}
+            <details class="list-card compact">
+                <summary class="doctor-row-head">
+                    <strong>{{ doctor.name }} ({{ doctor.employee_id if doctor.employee_id else 'Pending' }})</strong>
+                    <span class="status-chip {% if doctor.active %}active-chip{% else %}inactive-chip{% endif %}">{{ 'Active' if doctor.active else 'Inactive' }}</span>
+                </summary>
+                <form class="stack-form" method="post" action="/admin/doctors/{{ doctor.id }}/edit" enctype="multipart/form-data">
+                    <input type="text" name="name" value="{{ doctor.name }}" required>
+                    <input type="text" name="title" value="{{ doctor.title }}" required>
+                    <input type="number" min="1" name="experience_years" value="{{ doctor.experience_years }}" required>
+                    <input type="text" name="specialties" value="{{ doctor.specialties }}" required>
+                    <textarea name="bio" rows="4" required>{{ doctor.bio }}</textarea>
+                    <textarea name="testimonial_summary" rows="3" placeholder="Testimonial summary">{{ doctor.testimonial_summary }}</textarea>
+                    <textarea name="contact_details" rows="3" placeholder="Doctor contact details (admin only)">{{ doctor.contact_details }}</textarea>
+                    <input type="url" name="photo_url" value="{{ doctor.photo_url }}" placeholder="Photo URL">
+                    <input type="file" name="photo_file" accept="image/*" class="doctor-photo-input" data-crop-aspect="4:3">
+                    <input type="url" name="document_url" value="{{ doctor.document_url }}" placeholder="Document PDF URL">
+                    <input type="file" name="document_file" accept="application/pdf,.pdf">
+                    {% if doctor.document_url %}
+                    <a class="button button-secondary" href="{{ doctor.document_url }}" target="_blank" rel="noopener">View current document</a>
+                    {% endif %}
+                    <select name="active" required>
+                        <option value="true" {% if doctor.active %}selected{% endif %}>Active</option>
+                        <option value="false" {% if not doctor.active %}selected{% endif %}>Inactive</option>
+                    </select>
+                    <button class="button button-primary" type="submit">Update doctor</button>
+                </form>
+                <form class="inline-form" method="post" action="/admin/doctors/{{ doctor.id }}/status">
+                    <input type="hidden" name="active" value="{{ 'false' if doctor.active else 'true' }}">
+                    <button class="button button-secondary" type="submit">{{ 'Set Inactive' if doctor.active else 'Set Active' }}</button>
+                </form>
+            </details>
+            {% else %}
+            <p class="empty-state">No doctors added yet.</p>
+            {% endfor %}
+        </div>
+
+        <div class="pagination-row">
+            <span class="field-note">Page {{ doctors_page.page }} of {{ doctors_page.total_pages }} | {{ doctors_page.total_items }} total</span>
+            <div class="inline-form">
+                {% if doctors_page.has_prev %}
+                <a class="button button-secondary" href="{{ doctor_page_links.prev }}">Previous</a>
+                {% endif %}
+                {% if doctors_page.has_next %}
+                <a class="button button-secondary" href="{{ doctor_page_links.next }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <h2>Add Availability</h2>
+        <form class="stack-form" method="post" action="/admin/availability">
+            <select name="doctor_id" required>
+                <option value="">Select doctor</option>
+                {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.employee_id if doctor.employee_id else 'Pending' }})</option>
+                {% endfor %}
+            </select>
+            <div>
+                <p class="field-note">Select weekday(s)</p>
+                <div class="weekday-grid">
+                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                    <label class="weekday-option">
+                        <input type="checkbox" name="selected_days" value="{{ day }}">
+                        <span>{{ day }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <label>
+                <span class="field-note">Or pick a specific date</span>
+                <input type="date" name="specific_date">
+            </label>
+            <div class="time-row">
+                <label>
+                    <span class="field-note">Start time</span>
+                    <input type="time" name="start_time" required>
+                </label>
+                <label>
+                    <span class="field-note">End time</span>
+                    <input type="time" name="end_time" required>
+                </label>
+            </div>
+            <button class="button button-primary" type="submit">Save slot</button>
+        </form>
+    </article>
+
+    <article class="dashboard-panel reveal reveal-delay-1">
+        <h2>Manage Services</h2>
+        <form class="stack-form" method="post" action="/admin/services">
+            <input type="text" name="title" placeholder="Service title" required>
+            <textarea name="description" rows="3" placeholder="Service description" required></textarea>
+            <button class="button button-primary" type="submit">Add service</button>
+        </form>
+
+        <div class="table-stack compact-stack top-gap-sm">
+            {% for service in services %}
+            <details class="list-card compact">
+                <summary><strong>{{ service.title }}</strong></summary>
+                <form class="stack-form" method="post" action="/admin/services/{{ service.id }}/edit">
+                    <input type="text" name="title" value="{{ service.title }}" required>
+                    <textarea name="description" rows="3" required>{{ service.description }}</textarea>
+                    <button class="button button-secondary" type="submit">Update service</button>
+                </form>
+            </details>
+            {% else %}
+            <p class="empty-state">No services found.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <h2>Manage Cities</h2>
+        <form class="stack-form" method="post" action="/admin/cities">
+            <input type="text" name="name" placeholder="City name" required>
+            <button class="button button-primary" type="submit">Add city</button>
+        </form>
+
+        <div class="table-stack compact-stack top-gap-sm">
+            {% for city in cities %}
+            <div class="list-card compact">
+                <form class="inline-form" method="post" action="/admin/cities/{{ city.id }}/edit">
+                    <input type="text" name="name" value="{{ city.name }}" required>
+                    <button class="button button-secondary" type="submit">Update city</button>
+                </form>
+            </div>
+            {% else %}
+            <p class="empty-state">No cities found.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="dashboard-panel reveal reveal-delay-1">
+        <h2>More Lists</h2>
+        <div class="stack-form">
+            <a class="button button-secondary" href="/admin/appointments">Open paginated appointments</a>
+            <a class="button button-secondary" href="/admin/reviews">Open review library</a>
+            {% if can_manage_admins %}
+            <a class="button button-secondary" href="/admin/users">Open admin and doctor users</a>
+            {% endif %}
+        </div>
+    </article>
+</section>
+{% endblock %}
+
+{% block admin_overlay %}
+<div id="doctorPhotoCropModal" class="doctor-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="doctorPhotoCropTitle">
+    <div class="doctor-modal-backdrop" data-close-crop-modal="true"></div>
+    <section class="doctor-modal-card doctor-crop-card">
+        <button type="button" class="doctor-modal-close" data-close-crop-modal="true" aria-label="Close crop dialog">x</button>
+        <p class="eyebrow">Doctor Photo Upload</p>
+        <h3 id="doctorPhotoCropTitle">Crop doctor photo</h3>
+        <p class="field-note">Adjust zoom and position, then apply crop to upload a properly sized image.</p>
+
+        <canvas id="doctorCropCanvas" class="doctor-crop-canvas" width="960" height="720"></canvas>
+
+        <div class="doctor-crop-controls">
+            <label>
+                <span>Zoom</span>
+                <input id="doctorCropZoom" type="range" min="1" max="2.4" step="0.01" value="1">
+            </label>
+            <label>
+                <span>Horizontal</span>
+                <input id="doctorCropX" type="range" min="-280" max="280" step="1" value="0">
+            </label>
+            <label>
+                <span>Vertical</span>
+                <input id="doctorCropY" type="range" min="-280" max="280" step="1" value="0">
+            </label>
+        </div>
+
+        <div class="inline-form">
+            <button type="button" class="button button-secondary" data-close-crop-modal="true">Cancel</button>
+            <button type="button" class="button button-primary" id="doctorCropApply">Apply crop</button>
+        </div>
+    </section>
+</div>
+{% endblock %}

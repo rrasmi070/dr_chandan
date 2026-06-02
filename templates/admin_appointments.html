@@ -1,0 +1,82 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Appointments | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Appointments{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-panel reveal">
+    <div class="toolbar-row">
+        <form class="inline-form toolbar-form" method="get" action="/admin/appointments">
+            <label>
+                <span class="field-note">Search</span>
+                <input type="text" name="search" value="{{ appointment_filters.search }}" placeholder="Patient name or phone">
+            </label>
+            <label>
+                <span class="field-note">From</span>
+                <input type="date" name="start_date" value="{{ appointment_filters.start_date }}">
+            </label>
+            <label>
+                <span class="field-note">To</span>
+                <input type="date" name="end_date" value="{{ appointment_filters.end_date }}">
+            </label>
+            <button class="button button-secondary" type="submit">Apply filter</button>
+        </form>
+        <a class="button button-primary" href="/admin/appointments/export?search={{ appointment_filters.search }}&start_date={{ appointment_filters.start_date }}&end_date={{ appointment_filters.end_date }}">Export Excel</a>
+    </div>
+
+    <div class="table-scroll">
+        <table class="admin-table appointments-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Contact</th>
+                    <th>Visit</th>
+                    <th>Doctor</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments_page["items"] %}
+                <tr>
+                    <td>
+                        <strong>{{ appointment.patient_name }}</strong>
+                        <div class="field-note">Status: {{ appointment.status }}</div>
+                    </td>
+                    <td>{{ appointment.phone }}</td>
+                    <td>
+                        <div>{{ appointment.service_name }}</div>
+                        <div class="field-note">{{ appointment.city }} | {{ appointment.appointment_date }}</div>
+                    </td>
+                    <td>{{ appointment.doctor.name if appointment.doctor else 'Not assigned' }}</td>
+                    <td>
+                        <span class="status-chip">{{ appointment.status }}</span>
+                    </td>
+                    <td>
+                        <a class="button button-secondary" href="/admin/appointments/{{ appointment.id }}?search={{ appointment_filters.search }}&start_date={{ appointment_filters.start_date }}&end_date={{ appointment_filters.end_date }}&page={{ appointments_page.page }}">Open</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <p class="empty-state">No appointments found for the selected filters.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-row">
+        <span class="field-note">Page {{ appointments_page.page }} of {{ appointments_page.total_pages }} | {{ appointments_page.total_items }} total</span>
+        <div class="inline-form">
+            {% if appointments_page.has_prev %}
+            <a class="button button-secondary" href="{{ appointments_page_links.prev }}">Previous</a>
+            {% endif %}
+            {% if appointments_page.has_next %}
+            <a class="button button-secondary" href="{{ appointments_page_links.next }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

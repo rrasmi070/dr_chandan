@@ -1,0 +1,107 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}User Management | Physiophyte Medicare{% endblock %}
+{% block page_heading %}User Management{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <h2>Create User</h2>
+        {% if can_manage_admins %}
+        <p class="field-note">Default password for new users: <strong>Password@123</strong></p>
+        <form class="stack-form" method="post" action="/admin/users" enctype="multipart/form-data">
+            <input type="text" name="first_name" placeholder="First name" required>
+            <input type="text" name="last_name" placeholder="Last name" required>
+            <label>
+                <span>DOB</span>
+                <input type="date" name="dob" required>
+            </label>
+            <label>
+                <span>Joining Date</span>
+                <input type="date" name="joining_date" required>
+            </label>
+            <input type="text" name="designation" placeholder="Designation" required>
+            <input type="text" name="phone" placeholder="Phone number">
+            <input type="email" name="email" placeholder="Email">
+            <textarea name="address" rows="2" placeholder="Address"></textarea>
+            <select name="role" required>
+                <option value="admin">Admin</option>
+                <option value="doctor">Doctor</option>
+                <option value="reception">Reception</option>
+                <option value="staf">Staf</option>
+            </select>
+            <p class="field-note">If role is Doctor, profile and login are auto-created using these doctor fields.</p>
+            <input type="number" min="1" name="doctor_experience_years" value="1" placeholder="Doctor experience (years)">
+            <input type="text" name="doctor_specialties" placeholder="Doctor specialties (e.g., Neuro Rehab, Sports Physio)">
+            <textarea name="doctor_profile_summary" rows="3" placeholder="Doctor profile summary"></textarea>
+            <textarea name="doctor_testimonial_summary" rows="3" placeholder="Testimonial summary about doctor"></textarea>
+            <input type="url" name="doctor_photo_url" placeholder="Doctor profile photo URL (optional)">
+            <input type="file" name="doctor_photo_file" accept="image/*">
+            <input type="url" name="document_url" placeholder="Document URL (optional)">
+            <input type="file" name="employee_document_file" accept="application/pdf,image/*">
+            <label class="weekday-option">
+                <input type="checkbox" name="can_add_doctor" value="true">
+                <span>Can add doctor</span>
+            </label>
+            <label class="weekday-option">
+                <input type="checkbox" name="can_manage_admins" value="true">
+                <span>Can manage admins</span>
+            </label>
+            <select name="active" required>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+            <button class="button button-primary" type="submit">Create user</button>
+        </form>
+        {% else %}
+        <p class="empty-state">You do not have permission to manage users.</p>
+        {% endif %}
+    </article>
+
+    <article class="dashboard-panel reveal reveal-delay-1">
+        <h2>User List</h2>
+        <div class="table-stack compact-stack">
+            {% for admin in admins_page["items"] %}
+            <div class="list-card compact">
+                <div class="doctor-row-head">
+                    <strong>{{ admin.username }}</strong>
+                    <span class="status-chip {% if admin.active %}active-chip{% else %}inactive-chip{% endif %}">{{ 'Active' if admin.active else 'Inactive' }}</span>
+                </div>
+                {% if admin.employee %}
+                <span>Employee ID: {{ admin.employee.employee_id }}</span>
+                <span>Name: {{ admin.employee.full_name }}</span>
+                <span>DOB: {{ admin.employee.dob }}</span>
+                <span>Joining Date: {{ admin.employee.joining_date }}</span>
+                <span>Designation: {{ admin.employee.designation }}</span>
+                {% endif %}
+                <span>Role: {{ admin.role|default('admin')|title }}</span>
+                {% if admin.assigned_doctor %}
+                <span>Doctor Profile: {{ admin.assigned_doctor.name }}</span>
+                {% endif %}
+                <span>Can add doctor: {{ 'Yes' if admin.permissions and admin.permissions.can_add_doctor else 'No' }}</span>
+                <span>Can manage admins: {{ 'Yes' if admin.permissions and admin.permissions.can_manage_admins else 'No' }}</span>
+                {% if can_manage_admins %}
+                <form class="inline-form" method="post" action="/admin/users/{{ admin.id }}/status">
+                    <input type="hidden" name="active" value="{{ 'false' if admin.active else 'true' }}">
+                    <button class="button button-secondary" type="submit">{{ 'Set Inactive' if admin.active else 'Set Active' }}</button>
+                </form>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="empty-state">No users found.</p>
+            {% endfor %}
+        </div>
+        <div class="pagination-row">
+            <span class="field-note">Page {{ admins_page.page }} of {{ admins_page.total_pages }} | {{ admins_page.total_items }} total</span>
+            <div class="inline-form">
+                {% if admins_page.has_prev %}
+                <a class="button button-secondary" href="{{ user_page_links.prev }}">Previous</a>
+                {% endif %}
+                {% if admins_page.has_next %}
+                <a class="button button-secondary" href="{{ user_page_links.next }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock %}

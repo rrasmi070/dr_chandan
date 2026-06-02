@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Physiophyte Medicare | Home Physiotherapy{% endblock %}
+
+{% block body %}
+<div class="site-shell">
+    <header class="topbar reveal">
+        <a class="brand-wrap" href="/">
+            <img class="brand-logo" src="{{ url_for('static', path='/images/logo1.png') }}" alt="Physiophyte logo" onerror="this.style.display='none'">
+        </a>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <a href="/about-us">About Us</a>
+            <a href="/contact-us">Contact Us</a>
+            <a href="#services">Services</a>
+            <a href="#team">Doctors</a>
+            <a href="#reviews">Reviews</a>
+            <a class="button button-primary" href="#booking">Book Appointment</a>
+            <!--<a class="button button-secondary" href="/admin/login">Admin</a>-->
+        </nav>
+    </header>
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-copy reveal">
+                <p class="eyebrow">Home physiotherapy in Delhi, Noida, Gurgaon, Ghaziabad, Faridabad and Patna</p>
+                <h1>Comfort-first physiotherapy care with better scheduling and transparent therapist availability.</h1>
+                <p class="lede">Designed for mobile and desktop users, this experience keeps booking simple while showing doctor availability before the patient submits the appointment.</p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#booking">Book an appointment</a>
+                    <a class="button button-secondary" href="/about-us">Read About Us</a>
+                </div>
+            </div>
+            <div class="hero-card reveal reveal-delay-1">
+                <div class="metric-grid">
+                    <article>
+                        <strong>{{ cities|length if cities else 0 }}</strong>
+                        <span>Service cities</span>
+                    </article>
+                    <article>
+                        <strong>{{ doctors|length }}</strong>
+                        <span>Active therapists</span>
+                    </article>
+                    <article>
+                        <strong>{{ services|length }}</strong>
+                        <span>Specialties offered</span>
+                    </article>
+                    <article>
+                        <strong>{{ reviews|length }}</strong>
+                        <span>Featured reviews</span>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services reveal">
+            <div class="section-heading">
+                <p class="eyebrow">Our Services</p>
+                <h2>Physiotherapy specialties currently offered.</h2>
+            </div>
+            <div class="service-grid">
+                {% for service in services %}
+                <article class="service-card">
+                    <span class="service-index">{{ '%02d' % loop.index }}</span>
+                    <h3>{{ service.title }}</h3>
+                    <p>{{ service.description }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="team" class="team reveal">
+            <div class="section-heading">
+                <p class="eyebrow">Our Team</p>
+                <h2>Featured therapists with availability panels.</h2>
+            </div>
+            <div class="doctor-grid">
+                {% for doctor in doctors %}
+                <article class="doctor-card">
+                    <img src="{{ doctor.photo_url or 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=80' }}" alt="{{ doctor.name }}">
+                    <div class="doctor-copy">
+                        <span>{{ doctor.title }}</span>
+                        <h3>{{ doctor.name }}</h3>
+                        <p class="doctor-bio">{{ doctor.bio }}</p>
+                        <div class="pill-row">
+                            <span>{{ doctor.experience_years }}+ years</span>
+                            <span>{{ doctor.specialties }}</span>
+                            <!--<span>{{ doctor.employee_id if doctor.employee_id else 'Employee ID pending' }}</span>-->
+                        </div>
+                        <ul class="slot-list">
+                            {% for slot in doctor.availability_slots %}
+                            <li>{{ slot.day_label }}: {{ slot.time_range }}</li>
+                            {% else %}
+                            <li>Availability will be added from admin panel.</li>
+                            {% endfor %}
+                        </ul>
+                        <button class="button button-secondary doctor-details-trigger" type="button" data-doctor-id="{{ doctor.id }}" aria-label="View details for {{ doctor.name }}">
+                            Details
+                        </button>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div id="doctorDetailsModal" class="doctor-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="doctorDetailsTitle">
+            <div class="doctor-modal-backdrop" data-close-modal="true"></div>
+            <section class="doctor-modal-card">
+                <button type="button" class="doctor-modal-close" data-close-modal="true" aria-label="Close doctor details">x</button>
+                <img id="doctorDetailsImage" class="doctor-modal-image" src="" alt="Doctor profile photo" loading="lazy">
+                <p class="eyebrow">Doctor Profile</p>
+                <h3 id="doctorDetailsTitle"></h3>
+                <p id="doctorDetailsMeta" class="field-note"></p>
+                <p id="doctorDetailsBio"></p>
+                <p id="doctorDetailsSpecialties" class="field-note"></p>
+                <div id="doctorDetailsAvailability" class="notice"></div>
+                <p id="doctorDetailsDocumentWrap" class="field-note" style="display:none; margin-top: 8px;">
+                    <a id="doctorDetailsDocumentLink" class="button button-secondary" href="#" target="_blank" rel="noopener">View doctor document (PDF)</a>
+                </p>
+            </section>
+        </div>
+
+        <section id="reviews" class="reviews reveal">
+            <div class="section-heading">
+                <p class="eyebrow">Patient Reviews</p>
+                <h2>Review Library</h2>
+            </div>
+            <div class="review-grid">
+                {% for review in reviews %}
+                <article class="review-card">
+                    <div class="stars">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</div>
+                    <p class="review-quote">“{{ review.quote }}”</p>
+                    <strong>{{ review.patient_name }}</strong>
+                    <span>{{ review.location }}</span>
+                    {% if review.video_url %}
+                    <div class="video-shell">
+                        <iframe src="{{ review.video_url }}" title="{{ review.patient_name }} review" loading="lazy" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="booking" class="booking reveal">
+            <div class="booking-copy">
+                <p class="eyebrow">Book an Appointment</p>
+                <h2>Doctor availability is visible before booking.</h2>
+                <p>Select a doctor to preview available days/time and submit request confidently.</p>
+                <div id="doctorAvailabilityPreview" class="notice" style="display:none;"></div>
+                {% if request.query_params.get('appointment') == 'success' %}
+                <div class="notice success">Appointment request saved. You can track it from the admin panel.</div>
+                {% endif %}
+            </div>
+            <form class="booking-form" method="post" action="/appointments">
+                <label>
+                    <span>Patient name</span>
+                    <input type="text" name="patient_name" placeholder="Full name" required>
+                </label>
+                <label>
+                    <span>Phone / WhatsApp</span>
+                    <input type="text" name="phone" placeholder="+91..." required>
+                </label>
+                <label>
+                    <span>City</span>
+                    <select name="city" required>
+                        <option value="">Select city</option>
+                        {% for city in cities %}
+                        <option value="{{ city.name }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Preferred date</span>
+                    <input type="date" name="appointment_date" required>
+                </label>
+                <label>
+                    <span>Service</span>
+                    <select name="service_name" required>
+                        {% for service in services %}
+                        <option value="{{ service.title }}">{{ service.title }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Preferred doctor</span>
+                    <select id="doctorSelect" name="doctor_id">
+                        <option value="">Any available physiotherapist</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.employee_id if doctor.employee_id else 'No ID' }})</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="full-width">
+                    <span>Patient notes</span>
+                    <textarea name="notes" rows="4" placeholder="Condition, pain area, surgery details, age group, or timing preference"></textarea>
+                </label>
+                <button class="button button-primary full-width" type="submit">Submit booking request</button>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script id="doctorAvailabilityData" type="application/json">{{ doctors|tojson }}</script>
+{% endblock %}

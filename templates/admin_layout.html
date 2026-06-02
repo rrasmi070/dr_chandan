@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="dashboard-shell">
+    <header class="dashboard-header reveal">
+        <div>
+            <p class="eyebrow">{{ current_role_label }} Panel</p>
+            <h1>{{ self.page_heading() }}</h1>
+            <p class="field-note">Signed in as: {{ current_admin_username }} | {{ current_role_label }}</p>
+        </div>
+        <a class="button button-secondary" href="/admin/logout">Logout</a>
+    </header>
+
+    <nav class="admin-nav reveal">
+        {% if current_role == 'admin' %}
+        <a href="/admin" {% if current_path == '/admin' %}aria-current="page"{% endif %}>Overview</a>
+        <a href="/admin/reviews" {% if current_path == '/admin/reviews' %}aria-current="page"{% endif %}>Reviews</a>
+        <a href="/admin/users" {% if current_path == '/admin/users' %}aria-current="page"{% endif %}>Users</a>
+        <a href="/admin/employees" {% if '/admin/employees' in current_path %}aria-current="page"{% endif %}>Employees</a>
+        {% endif %}
+        <a href="/admin/appointments" {% if current_path == '/admin/appointments' %}aria-current="page"{% endif %}>Appointments</a>
+    </nav>
+
+    {% if status_message %}
+    <div class="notice success">{{ status_message }}</div>
+    {% endif %}
+
+    {% block admin_content %}{% endblock %}
+</div>
+{% block admin_overlay %}{% endblock %}
+{% endblock %}

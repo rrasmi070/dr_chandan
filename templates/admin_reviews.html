@@ -1,0 +1,52 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Review Library | Physiophyte Medicare{% endblock %}
+{% block page_heading %}Review Library{% endblock %}
+
+{% block admin_content %}
+<section class="dashboard-grid secondary-grid">
+    <article class="dashboard-panel reveal">
+        <h2>Add Review</h2>
+        <form class="stack-form" method="post" action="/admin/reviews">
+            <input type="text" name="patient_name" placeholder="Patient name" required>
+            <input type="text" name="location" placeholder="Location" required>
+            <textarea name="quote" rows="4" placeholder="Review text" required></textarea>
+            <input type="number" min="1" max="5" name="rating" value="5" required>
+            <input type="url" name="video_url" placeholder="YouTube embed URL or hosted video URL">
+            <button class="button button-primary" type="submit">Save review</button>
+        </form>
+    </article>
+
+    <article class="dashboard-panel reveal reveal-delay-1">
+        <h2>Review List</h2>
+        <div class="table-stack compact-stack">
+            {% for review in reviews_page["items"] %}
+            <details class="list-card compact">
+                <summary><strong>{{ review.patient_name }} | {{ review.rating }}/5</strong></summary>
+                <form class="stack-form" method="post" action="/admin/reviews/{{ review.id }}/edit">
+                    <input type="text" name="patient_name" value="{{ review.patient_name }}" required>
+                    <input type="text" name="location" value="{{ review.location }}" required>
+                    <textarea name="quote" rows="4" required>{{ review.quote }}</textarea>
+                    <input type="number" min="1" max="5" name="rating" value="{{ review.rating }}" required>
+                    <input type="url" name="video_url" value="{{ review.video_url }}">
+                    <button class="button button-secondary" type="submit">Update review</button>
+                </form>
+            </details>
+            {% else %}
+            <p class="empty-state">No reviews added yet.</p>
+            {% endfor %}
+        </div>
+        <div class="pagination-row">
+            <span class="field-note">Page {{ reviews_page.page }} of {{ reviews_page.total_pages }} | {{ reviews_page.total_items }} total</span>
+            <div class="inline-form">
+                {% if reviews_page.has_prev %}
+                <a class="button button-secondary" href="{{ review_page_links.prev }}">Previous</a>
+                {% endif %}
+                {% if reviews_page.has_next %}
+                <a class="button button-secondary" href="{{ review_page_links.next }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock %}
